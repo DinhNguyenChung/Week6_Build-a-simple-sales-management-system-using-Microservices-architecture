@@ -1,6 +1,7 @@
 FROM node:18
 WORKDIR /app
-COPY . .
+COPY package*.json ./
 RUN npm install
-EXPOSE 4001
+COPY . .
+EXPOSE 4002
 CMD ["node", "src/index.js"]

@@ -1,67 +1,90 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:latest
-    container_name: postgres_sales
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+  api-gateway:
+    build: ./api-gateway
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - backend
-    restart: always
-
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: pgadmin_sales
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-    ports:
-      - "8080:80" # đổi port nếu cần tránh trùng
-    networks:
-      - backend
+      - '3000:3000'
     depends_on:
-      - postgres
-    restart: always
-
-  redis:
-    image: redis:latest
-    container_name: redis_sales
-    ports:
-      - "6379:6379"
+      - product-service
+      - customer-service
+      - order-service
+    restart: unless-stopped
     networks:
       - backend
-    volumes:
-      - redis_data:/data
-    restart: always
 
   product-service:
     build: ./product-service
-    container_name: product_service
     ports:
-      - "3001:3001"
-    environment:
-      DB_USER: ${POSTGRES_USER}
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_NAME: ${POSTGRES_DB}
-      DB_HOST: postgres
-      DB_PORT: 5432
+      - '4001:4001'
     depends_on:
-      - postgres
+      - product-db
+    restart: unless-stopped
     networks:
       - backend
 
+  product-db:
+    image: postgres
+    environment:
+      POSTGRES_DB: productdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - ./product-service/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - backend
+    ports:
+      - "5433:5432"  # Mở cổng 5433 trên host để truy cập vào product-db
+
+  customer-service:
+    build: ./customer-service
+    ports:
+      - '4002:4002'
+    depends_on:
+      - customer-db
+    restart: unless-stopped
+    networks:
+      - backend
+
+  customer-db:
+    image: postgres
+    environment:
+      POSTGRES_DB: customerdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - ./customer-service/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - backend
+    ports:
+      - "5434:5432"  # Mở cổng 5434 trên host để truy cập vào customer-db
+
+  order-service:
+    build: ./order-service
+    ports:
+      - '4003:4003'
+    depends_on:
+      - order-db
+    restart: unless-stopped
+    networks:
+      - backend
+
+  order-db:
+    image: postgres
+    environment:
+      POSTGRES_DB: orderdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - ./order-service/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - backend
+    ports:
+      - "5435:5432"  # Mở cổng 5435 trên host để truy cập vào order-db
 
 networks:
   backend:
     driver: bridge
-
-volumes:
-  postgres_data:
-  redis_data:

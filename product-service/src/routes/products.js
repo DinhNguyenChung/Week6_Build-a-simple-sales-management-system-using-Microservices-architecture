@@ -1,47 +1,40 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const db = require('../db');
+const db = require("../db");
 
-// Create product
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
   const { name, price, description, stock } = req.body;
-  try {
-    const result = await db.query(
-      'INSERT INTO products (name, price, description, stock) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name, price, description, stock]
-    );
-    res.json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Get all products
-router.get('/', async (req, res) => {
-  const result = await db.query('SELECT * FROM products');
-  res.json(result.rows);
-});
-
-// Get product by ID
-router.get('/:id', async (req, res) => {
-  const result = await db.query('SELECT * FROM products WHERE id = $1', [req.params.id]);
+  const result = await db.query(
+    "INSERT INTO products(name, price, description, stock) VALUES($1, $2, $3, $4) RETURNING *",
+    [name, price, description, stock]
+  );
   res.json(result.rows[0]);
 });
 
-// Update product
-router.put('/:id', async (req, res) => {
+router.get("/", async (req, res) => {
+  const result = await db.query("SELECT * FROM products");
+  res.json(result.rows);
+});
+
+router.get("/:id", async (req, res) => {
+  const result = await db.query("SELECT * FROM products WHERE id = $1", [
+    req.params.id,
+  ]);
+  res.json(result.rows[0]);
+});
+
+router.put("/:id", async (req, res) => {
   const { name, price, description, stock } = req.body;
   const result = await db.query(
-    'UPDATE products SET name=$1, price=$2, description=$3, stock=$4 WHERE id=$5 RETURNING *',
+    "UPDATE products SET name=$1, price=$2, description=$3, stock=$4 WHERE id=$5 RETURNING *",
     [name, price, description, stock, req.params.id]
   );
   res.json(result.rows[0]);
 });
 
-// Delete product
-router.delete('/:id', async (req, res) => {
-  await db.query('DELETE FROM products WHERE id = $1', [req.params.id]);
-  res.sendStatus(204);
+router.delete("/:id", async (req, res) => {
+  await db.query("DELETE FROM products WHERE id=$1", [req.params.id]);
+  res.json({ message: "Deleted" });
 });
 
 module.exports = router;

@@ -1,5 +1,5 @@
 {
-  "name": "product-service",
+  "name": "api-gateway",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -13,6 +13,7 @@
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.5",
     "pg": "^8.14.1"
   }
 }
