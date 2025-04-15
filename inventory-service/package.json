@@ -1,5 +1,5 @@
 {
-  "name": "order-service",
+  "name": "inventory-service",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -12,11 +12,8 @@
   "dependencies": {
     "axios": "^1.8.4",
     "axios-retry": "^4.5.0",
-    "body-parser": "^2.2.0",
-    "cors": "^2.8.5",
     "express": "^5.1.0",
     "opossum": "^8.4.0",
-    "pg": "^8.14.1",
     "rate-limiter-flexible": "^7.0.0"
   }
 }
