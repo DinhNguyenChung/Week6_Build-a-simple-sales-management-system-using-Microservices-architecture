@@ -84,7 +84,77 @@ services:
       - backend
     ports:
       - "5435:5432"  # Mở cổng 5435 trên host để truy cập vào order-db
+  payment-service:
+    build: ./payment-service
+    ports:
+      - '4006:4006'
+    depends_on:
+      - payment-db
+    restart: unless-stopped
+    networks:
+      - backend
 
+  payment-db:
+    image: postgres
+    environment:
+      POSTGRES_DB: paymentdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - ./payment-service/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5436:5432"
+    restart: unless-stopped
+    networks:
+      - backend
+
+  inventory-service:
+    build: ./inventory-service
+    ports:
+      - '4005:4005'
+    depends_on:
+      - inventory-db
+    restart: unless-stopped
+    networks:
+      - backend
+
+  inventory-db:
+    image: postgres
+    environment:
+      POSTGRES_DB: inventorydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - ./inventory-service/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5437:5432"
+    restart: unless-stopped
+    networks:
+      - backend
+
+  shipping-service:
+    build: ./shipping-service
+    ports:
+      - '4004:4004'
+    depends_on:
+      - shipping-db
+    restart: unless-stopped
+    networks:
+      - backend
+
+  shipping-db:
+    image: postgres
+    environment:
+      POSTGRES_DB: shippingdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - ./shipping-service/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5438:5432"
+    restart: unless-stopped
+    networks:
+      - backend
 networks:
   backend:
     driver: bridge

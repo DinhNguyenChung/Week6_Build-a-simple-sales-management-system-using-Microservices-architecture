@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS shipping (
+  id SERIAL PRIMARY KEY,
+  order_id INTEGER NOT NULL,
+  status VARCHAR(50) DEFAULT 'processing',
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
